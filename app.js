@@ -6,8 +6,9 @@ const motionAnimate = (element, keyframes, options = {}) => {
   for (const [property, values] of Object.entries(keyframes)) element.style[property] = Array.isArray(values) ? values.at(-1) : values;
 };
 const video = $('#replay-video'), cropVideo = $('#crop-video');
-const scrubber = $('#scrubber'), playButton = $('#scene-play');
-let saved = false, saveTimer, userPaused = false, viewerVisible = true, cropVisible = false;
+const scrubber = $('#scrubber'), playButton = $('#scene-play'), deskPlayButton = $('#desk-play');
+let saved = false, saveTimer, userPaused = false, viewerVisible = true, deskVisible = false, cropVisible = false;
+let scrubbing = false, scrubTarget = 0, scrubPointer = null, resumeAfterScrub = false, explicitPlayback = false;
 let videoFrame = null, fallbackFrame = null;
 const initialPosition = 18.4;
 for (const [index, track] of [...document.querySelectorAll('.waveform')].entries()) {
@@ -27,18 +28,23 @@ for (let i = 0; i < 56; i++) {
   $('.buffer-history').append(bar);
 }
 function renderPosition() {
-  const position = video.currentTime || 0;
+  const position = scrubbing ? scrubTarget : video.currentTime || 0;
   scrubber.value = position;
   scrubber.setAttribute('aria-valuetext', `${position.toFixed(1)} ${window.encoreI18n.language === 'tr' ? 'saniye' : 'seconds'}`);
-  $('#playhead').style.left = `${position / 30 * 100}%`;
+  $('#playhead').style.left = `${position / replayDuration() * 100}%`;
   const centiseconds = Math.floor(position * 100), seconds = String(Math.floor(centiseconds / 100)).padStart(2, '0');
   $('#current-time').textContent = `00:${seconds}`;
   $('#scene-time').textContent = `00:${seconds}.${String(centiseconds % 100).padStart(2, '0')}`;
 }
 function renderPlayButton() {
   const playing = !video.paused;
-  playButton.setAttribute('aria-label', t(playing ? 'Pause illustrated replay' : 'Play illustrated replay'));
-  playButton.innerHTML = playing ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z"/></svg>';
+  for (const button of [playButton, deskPlayButton]) {
+    const label = t(button === deskPlayButton ? playing ? 'Pause replay' : 'Play replay' : playing ? 'Pause illustrated replay' : 'Play illustrated replay');
+    button.setAttribute('aria-label', label);
+    button.setAttribute('aria-pressed', String(playing));
+    button.title = label;
+    button.innerHTML = playing ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z"/></svg>';
+  }
 }
 function stopFrameUpdates() {
   if (videoFrame !== null && video.cancelVideoFrameCallback) video.cancelVideoFrameCallback(videoFrame);
@@ -52,7 +58,9 @@ function frameUpdate() {
   else fallbackFrame = requestAnimationFrame(frameUpdate);
 }
 function playReplay() { if (video.readyState > 0) video.play().catch(renderPlayButton); }
+function replayDuration() { return Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 30; }
 function initializeReplay() {
+  scrubber.max = replayDuration();
   video.currentTime = initialPosition; renderPosition();
   if (viewerVisible && !reduceMotion.matches && !userPaused && !document.hidden) playReplay();
 }
@@ -62,8 +70,43 @@ video.addEventListener('play', () => { stopFrameUpdates(); renderPlayButton(); f
 video.addEventListener('pause', () => { stopFrameUpdates(); renderPlayButton(); renderPosition(); });
 video.addEventListener('seeked', renderPosition);
 video.addEventListener('timeupdate', renderPosition);
-playButton.addEventListener('click', () => { userPaused = !video.paused; if (userPaused) video.pause(); else playReplay(); });
+function togglePlayback() {
+  userPaused = !video.paused;
+  if (userPaused) video.pause();
+  else { explicitPlayback = true; playReplay(); }
+}
+playButton.addEventListener('click', togglePlayback);
+deskPlayButton.addEventListener('click', togglePlayback);
 scrubber.addEventListener('input', () => { if (video.readyState > 0) video.currentTime = Number(scrubber.value); renderPosition(); });
+function seekWithPointer(event) {
+  const bounds = scrubber.getBoundingClientRect();
+  scrubTarget = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width)) * replayDuration();
+  if (video.readyState > 0) video.currentTime = scrubTarget;
+  renderPosition();
+}
+scrubber.addEventListener('pointerdown', event => {
+  if (!event.isPrimary || event.button !== 0) return;
+  event.preventDefault();
+  resumeAfterScrub = !video.paused;
+  scrubbing = true; scrubPointer = event.pointerId;
+  video.pause();
+  scrubber.focus({preventScroll:true});
+  scrubber.setPointerCapture(event.pointerId);
+  seekWithPointer(event);
+});
+scrubber.addEventListener('pointermove', event => {
+  if (scrubbing && event.pointerId === scrubPointer) seekWithPointer(event);
+});
+function finishScrub(event) {
+  if (!scrubbing || event.pointerId !== scrubPointer) return;
+  if (event.type === 'pointerup') seekWithPointer(event);
+  scrubbing = false; scrubPointer = null;
+  renderPosition();
+  if (resumeAfterScrub && !document.hidden && (viewerVisible || deskVisible)) playReplay();
+}
+scrubber.addEventListener('pointerup', finishScrub);
+scrubber.addEventListener('pointercancel', finishScrub);
+scrubber.addEventListener('lostpointercapture', finishScrub);
 function updateTrackLabel(button) {
   const action = button.getAttribute('aria-pressed') === 'true' ? 'Unmute' : 'Mute';
   const track = button.dataset.track === 'mic' ? 'microphone' : button.dataset.track;
@@ -87,7 +130,7 @@ function saveMoment() {
 $('#save').addEventListener('click', saveMoment);
 document.addEventListener('keydown', event => { if (event.altKey && event.code === 'KeyS') { event.preventDefault(); saveMoment(); } });
 $('#reset-demo').addEventListener('click', () => {
-  userPaused = true; video.pause(); if (video.readyState > 0) video.currentTime = initialPosition;
+  userPaused = true; explicitPlayback = false; video.pause(); if (video.readyState > 0) video.currentTime = 0;
   clearTimeout(saveTimer); $('#save-feedback').style.opacity = 0; saved = false; updateSaveLabel();
   document.querySelectorAll('.track-toggle[aria-pressed=true]').forEach(button => button.click());
 });
@@ -111,30 +154,31 @@ document.querySelectorAll('[data-format]').forEach(button => button.addEventList
   updateCrop(button.dataset.format === 'vertical');
 }));
 new ResizeObserver(() => updateCrop($('[data-format="vertical"]').getAttribute('aria-pressed') === 'true', false)).observe($('.format-stage'));
-new IntersectionObserver(entries => {
+const replayVisibility = new IntersectionObserver(entries => {
   for (const entry of entries) {
-    if (entry.target === $('#viewer')) {
-      viewerVisible = entry.isIntersecting;
-      if (!viewerVisible) video.pause();
-      else if (!document.hidden && !userPaused && !reduceMotion.matches) playReplay();
-    } else {
-      cropVisible = entry.isIntersecting;
-      if (cropVisible && !document.hidden && !reduceMotion.matches) cropVideo.play().catch(() => {});
-      else cropVideo.pause();
-    }
+    if (entry.target === $('#viewer')) viewerVisible = entry.isIntersecting;
+    else deskVisible = entry.isIntersecting;
   }
-}, {threshold:.1}).observe($('#viewer'));
+  updatePlaybackVisibility();
+}, {threshold:.01});
+replayVisibility.observe($('#viewer'));
+replayVisibility.observe($('#replay-desk'));
 new IntersectionObserver(entries => {
   cropVisible = entries[0].isIntersecting;
   if (cropVisible && !document.hidden && !reduceMotion.matches) cropVideo.play().catch(() => {});
   else cropVideo.pause();
 }, {threshold:.1}).observe($('.format-stage'));
 function updatePlaybackVisibility() {
-  if (document.hidden || reduceMotion.matches) { video.pause(); cropVideo.pause(); }
-  else { if (viewerVisible && !userPaused) playReplay(); if (cropVisible) cropVideo.play().catch(() => {}); }
+  if (document.hidden) { video.pause(); cropVideo.pause(); return; }
+  if (!scrubbing) {
+    if ((viewerVisible || deskVisible) && !userPaused && (!reduceMotion.matches || explicitPlayback)) playReplay();
+    else video.pause();
+  }
+  if (cropVisible && !reduceMotion.matches) cropVideo.play().catch(() => {});
+  else cropVideo.pause();
 }
 document.addEventListener('visibilitychange', updatePlaybackVisibility);
-reduceMotion.addEventListener('change', updatePlaybackVisibility);
+reduceMotion.addEventListener('change', () => { explicitPlayback = false; updatePlaybackVisibility(); });
 document.addEventListener('encore:language', () => {
   renderPlayButton(); renderPosition(); updateBuffer(); updateSaveLabel();
   document.querySelectorAll('.track-toggle').forEach(updateTrackLabel);
