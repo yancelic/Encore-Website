@@ -1,0 +1,8 @@
+{
+  "video": { "file": "assets/replay.mp4", "durationSeconds": 30, "width": 960, "height": 540, "fps": 30, "frames": 900, "bytes": 6742727 },
+  "nativeMotionScan": { "ydif_mean": 10.996, "samples": 60, "fps": 2 },
+  "nativeFreezeScan": { "minimumSeconds": 2, "freezes": [] },
+  "browserChecks": ["autoplay", "looping", "pause", "timeline seeking", "moving vertical crop", "all thumbnails loaded", "English/Turkish switching", "Turkish persistence after navigation", "no console errors"],
+  "fullRaeaCheck": { "status": "unavailable", "reason": "external ffprobe program not found; native raea media scans and browser verification used" },
+  "audio": "Intentionally silent website demonstration. Track toggles illustrate the desktop editor controls."
+}

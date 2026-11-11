@@ -1,0 +1,12 @@
+# Encore replay motion correction
+audience: Visitors to the existing Encore website.
+believe: This replay has real movement and can be scrubbed like a clip.
+mode: play
+voice: No narration, no text, silent autoplay preview by design.
+
+## Direction
+Keep the existing website's red racing car, blue mountain circuit and exact five-color palette. Replace the static illustration with a rendered 3D chase shot. Road markings, barriers and landscape move past the camera; the car steers, its wheels turn, a second car is overtaken. Frame-pure, looping 30 seconds, 960x540 at 30fps. No ad, story or explanatory sequence: this is the user's requested movement correction to the existing demo. No sound so the website can autoplay without an intrusive soundtrack. Site overlay supplies labels and controls in English and Turkish.
+
+## Deliverable
+- replay.tsx: Source composition.
+- ../assets/replay.mp4: Actual H.264 video used by the website.

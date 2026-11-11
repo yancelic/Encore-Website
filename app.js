@@ -1,17 +1,15 @@
-const $ = (selector) => document.querySelector(selector);
+const $ = selector => document.querySelector(selector);
+const t = text => window.encoreI18n.t(text);
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const motionAnimate = (element, keyframes, options = {}) => {
   if (window.Motion?.animate) return window.Motion.animate(element, keyframes, { ...options, duration: reduceMotion.matches ? 0 : options.duration ?? .25 });
   for (const [property, values] of Object.entries(keyframes)) element.style[property] = Array.isArray(values) ? values.at(-1) : values;
 };
-let position = 18.4;
-let playing = false;
-let lastTime = 0;
-let frame = 0;
-let saveTimer;
-const scrubber = $('#scrubber');
-const playButton = $('#scene-play');
-const scene = $('.race-scene');
+const video = $('#replay-video'), cropVideo = $('#crop-video');
+const scrubber = $('#scrubber'), playButton = $('#scene-play');
+let saved = false, saveTimer, userPaused = false, viewerVisible = true, cropVisible = false;
+let videoFrame = null, fallbackFrame = null;
+const initialPosition = 18.4;
 for (const [index, track] of [...document.querySelectorAll('.waveform')].entries()) {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < 180; i++) {
@@ -29,65 +27,74 @@ for (let i = 0; i < 56; i++) {
   $('.buffer-history').append(bar);
 }
 function renderPosition() {
+  const position = video.currentTime || 0;
   scrubber.value = position;
+  scrubber.setAttribute('aria-valuetext', `${position.toFixed(1)} ${window.encoreI18n.language === 'tr' ? 'saniye' : 'seconds'}`);
   $('#playhead').style.left = `${position / 30 * 100}%`;
-  const seconds = String(Math.floor(position)).padStart(2, '0');
+  const centiseconds = Math.floor(position * 100), seconds = String(Math.floor(centiseconds / 100)).padStart(2, '0');
   $('#current-time').textContent = `00:${seconds}`;
-  $('#scene-time').textContent = `00:${seconds}.${String(Math.round(position % 1 * 100)).padStart(2, '0')}`;
-  scene.style.transform = reduceMotion.matches ? 'scale(1.06)' : `scale(${1.06 + position / 30 * .035}) translateX(${(position - 15) * .13}%)`;
+  $('#scene-time').textContent = `00:${seconds}.${String(centiseconds % 100).padStart(2, '0')}`;
 }
-function setPlaying(value) {
-  playing = value;
-  playButton.setAttribute('aria-label', `${value ? 'Pause' : 'Play'} illustrated replay`);
-  playButton.innerHTML = value ? '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>' : '<svg viewBox="0 0 24 24"><path d="m9 5 11 7-11 7z"/></svg>';
-  cancelAnimationFrame(frame);
-  if (value) { if (position >= 30) position = 0; lastTime = performance.now(); frame = requestAnimationFrame(tick); }
+function renderPlayButton() {
+  const playing = !video.paused;
+  playButton.setAttribute('aria-label', t(playing ? 'Pause illustrated replay' : 'Play illustrated replay'));
+  playButton.innerHTML = playing ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z"/></svg>';
 }
-function tick(now) {
-  if (!playing) return;
-  position = Math.min(30, position + (now - lastTime) / 1000);
-  lastTime = now;
+function stopFrameUpdates() {
+  if (videoFrame !== null && video.cancelVideoFrameCallback) video.cancelVideoFrameCallback(videoFrame);
+  if (fallbackFrame !== null) cancelAnimationFrame(fallbackFrame);
+  videoFrame = fallbackFrame = null;
+}
+function frameUpdate() {
   renderPosition();
-  if (position >= 30) return setPlaying(false);
-  frame = requestAnimationFrame(tick);
+  if (video.paused) return;
+  if (video.requestVideoFrameCallback) videoFrame = video.requestVideoFrameCallback(frameUpdate);
+  else fallbackFrame = requestAnimationFrame(frameUpdate);
 }
-playButton.addEventListener('click', () => setPlaying(!playing));
-scrubber.addEventListener('input', () => { position = Number(scrubber.value); renderPosition(); });
+function playReplay() { if (video.readyState > 0) video.play().catch(renderPlayButton); }
+function initializeReplay() {
+  video.currentTime = initialPosition; renderPosition();
+  if (viewerVisible && !reduceMotion.matches && !userPaused && !document.hidden) playReplay();
+}
+video.addEventListener('loadedmetadata', initializeReplay, { once: true });
+if (video.readyState > 0) initializeReplay();
+video.addEventListener('play', () => { stopFrameUpdates(); renderPlayButton(); frameUpdate(); });
+video.addEventListener('pause', () => { stopFrameUpdates(); renderPlayButton(); renderPosition(); });
+video.addEventListener('seeked', renderPosition);
+video.addEventListener('timeupdate', renderPosition);
+playButton.addEventListener('click', () => { userPaused = !video.paused; if (userPaused) video.pause(); else playReplay(); });
+scrubber.addEventListener('input', () => { if (video.readyState > 0) video.currentTime = Number(scrubber.value); renderPosition(); });
+function updateTrackLabel(button) {
+  const action = button.getAttribute('aria-pressed') === 'true' ? 'Unmute' : 'Mute';
+  const track = button.dataset.track === 'mic' ? 'microphone' : button.dataset.track;
+  button.setAttribute('aria-label', t(`${action} ${track} track`));
+}
 document.querySelectorAll('.track-toggle').forEach(button => {
   button.addEventListener('click', () => {
     const muted = button.getAttribute('aria-pressed') !== 'true';
-    button.setAttribute('aria-pressed', String(muted));
-    button.setAttribute('aria-label', `${muted ? 'Unmute' : 'Mute'} ${button.dataset.track === 'mic' ? 'microphone' : button.dataset.track} track`);
+    button.setAttribute('aria-pressed', String(muted)); updateTrackLabel(button);
     $(`#wave-${button.dataset.track}`).classList.toggle('muted', muted);
-  });
-  button.setAttribute('aria-label', `Mute ${button.dataset.track === 'mic' ? 'microphone' : button.dataset.track} track`);
+  }); updateTrackLabel(button);
 });
+function updateSaveLabel() { $('#save').firstChild.nextSibling.textContent = t(saved ? 'Replay saved' : 'Save the moment') + ' '; }
 function saveMoment() {
-  setPlaying(false);
-  clearTimeout(saveTimer);
-  const feedback = $('#save-feedback');
-  feedback.style.visibility = 'visible';
+  video.pause(); userPaused = true; clearTimeout(saveTimer); saved = true;
+  const feedback = $('#save-feedback'); feedback.style.visibility = 'visible';
   motionAnimate(feedback, { opacity: [0, 1], scale: [.96, 1] }, { type: 'spring', bounce: .1, duration: .32 });
-  $('#save').firstChild.nextSibling.textContent = 'Replay saved';
-  saveTimer = setTimeout(() => {
-    motionAnimate(feedback, { opacity: 0 }, { duration: .2 });
-    $('#save').firstChild.nextSibling.textContent = 'Save the moment ';
-  }, 2600);
+  updateSaveLabel();
+  saveTimer = setTimeout(() => { motionAnimate(feedback, { opacity: 0 }, { duration: .2 }); saved = false; updateSaveLabel(); }, 2600);
 }
 $('#save').addEventListener('click', saveMoment);
-document.addEventListener('keydown', event => {
-  if (event.altKey && event.code === 'KeyS') { event.preventDefault(); saveMoment(); }
-});
+document.addEventListener('keydown', event => { if (event.altKey && event.code === 'KeyS') { event.preventDefault(); saveMoment(); } });
 $('#reset-demo').addEventListener('click', () => {
-  setPlaying(false); position = 18.4; renderPosition();
-  clearTimeout(saveTimer); $('#save-feedback').style.opacity = 0;
-  $('#save').firstChild.nextSibling.textContent = 'Save the moment ';
+  userPaused = true; video.pause(); if (video.readyState > 0) video.currentTime = initialPosition;
+  clearTimeout(saveTimer); $('#save-feedback').style.opacity = 0; saved = false; updateSaveLabel();
   document.querySelectorAll('.track-toggle[aria-pressed=true]').forEach(button => button.click());
 });
 function updateBuffer() {
-  const value = Number($('#buffer').value);
-  $('#buffer-value').textContent = value;
-  $('#buffer-output').value = `${value} seconds`;
+  const value = Number($('#buffer').value); $('#buffer-value').textContent = value;
+  $('#buffer-output').value = `${value} ${window.encoreI18n.language === 'tr' ? 'saniye' : 'seconds'}`;
+  $('#buffer').setAttribute('aria-valuetext', $('#buffer-output').value);
   const bars = document.querySelectorAll('.buffer-history i');
   bars.forEach((bar, index) => bar.classList.toggle('kept', index >= bars.length * (1 - value / 120)));
 }
@@ -97,13 +104,40 @@ function updateCrop(vertical, animate = true) {
   const inset = vertical ? Math.max(0, (1 - (stage.clientHeight * 9 / 16) / stage.clientWidth) * 50) : 0;
   motionAnimate($('#crop-frame'), { clipPath: `inset(0 ${inset}%)` }, { type: 'spring', bounce: 0, duration: animate ? .4 : 0 });
   $('#format-label').textContent = vertical ? '1080 × 1920' : '1920 × 1080';
-  $('#crop-description').textContent = vertical ? 'Put the moment front and center in a vertical export.' : 'Keep the whole scene in a landscape export.';
+  $('#crop-description').textContent = t(vertical ? 'Put the moment front and center in a vertical export.' : 'Keep the whole scene in a landscape export.');
 }
 document.querySelectorAll('[data-format]').forEach(button => button.addEventListener('click', () => {
-  const vertical = button.dataset.format === 'vertical';
   document.querySelectorAll('[data-format]').forEach(tab => { const selected = tab === button; tab.classList.toggle('active', selected); tab.setAttribute('aria-pressed', String(selected)); });
-  updateCrop(vertical);
+  updateCrop(button.dataset.format === 'vertical');
 }));
 new ResizeObserver(() => updateCrop($('[data-format="vertical"]').getAttribute('aria-pressed') === 'true', false)).observe($('.format-stage'));
-document.addEventListener('visibilitychange', () => { if (document.hidden) setPlaying(false); });
-updateBuffer(); renderPosition();
+new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (entry.target === $('#viewer')) {
+      viewerVisible = entry.isIntersecting;
+      if (!viewerVisible) video.pause();
+      else if (!document.hidden && !userPaused && !reduceMotion.matches) playReplay();
+    } else {
+      cropVisible = entry.isIntersecting;
+      if (cropVisible && !document.hidden && !reduceMotion.matches) cropVideo.play().catch(() => {});
+      else cropVideo.pause();
+    }
+  }
+}, {threshold:.1}).observe($('#viewer'));
+new IntersectionObserver(entries => {
+  cropVisible = entries[0].isIntersecting;
+  if (cropVisible && !document.hidden && !reduceMotion.matches) cropVideo.play().catch(() => {});
+  else cropVideo.pause();
+}, {threshold:.1}).observe($('.format-stage'));
+function updatePlaybackVisibility() {
+  if (document.hidden || reduceMotion.matches) { video.pause(); cropVideo.pause(); }
+  else { if (viewerVisible && !userPaused) playReplay(); if (cropVisible) cropVideo.play().catch(() => {}); }
+}
+document.addEventListener('visibilitychange', updatePlaybackVisibility);
+reduceMotion.addEventListener('change', updatePlaybackVisibility);
+document.addEventListener('encore:language', () => {
+  renderPlayButton(); renderPosition(); updateBuffer(); updateSaveLabel();
+  document.querySelectorAll('.track-toggle').forEach(updateTrackLabel);
+  updateCrop($('[data-format="vertical"]').getAttribute('aria-pressed') === 'true', false);
+});
+updateBuffer(); renderPlayButton(); updateSaveLabel();
