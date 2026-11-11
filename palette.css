@@ -1,0 +1,17 @@
+:root {
+  --onyx: #0c120cff;
+  --brick-ember: #c20114ff;
+  --blue-slate: #5d737eff;
+  --pale-sky: #bfd5e2ff;
+  --ghost-white: #ecebf3ff;
+
+  --gradient-top: linear-gradient(0deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-right: linear-gradient(90deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-bottom: linear-gradient(180deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-left: linear-gradient(270deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-top-right: linear-gradient(45deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-bottom-right: linear-gradient(135deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-top-left: linear-gradient(225deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-bottom-left: linear-gradient(315deg, #0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+  --gradient-radial: radial-gradient(#0c120cff, #c20114ff, #5d737eff, #bfd5e2ff, #ecebf3ff);
+}
