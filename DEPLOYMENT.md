@@ -25,7 +25,7 @@ The local `.vercel/` directory contains the project link and is ignored by Git. 
 vercel link --yes --project encore-clips --scope echokatanas-projects
 ```
 
-Never put authentication tokens in tracked files. There is currently no Git-triggered automatic deployment configured; this deployment uses Vercel CLI.
+Never put authentication tokens in tracked files. GitHub repository: https://github.com/yancelic/Encore-Website. The main branch is connected to the existing Vercel project for automatic production deployments; other branches create previews.
 
 ## Verified on first Vercel deployment
 
