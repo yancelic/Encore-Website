@@ -1,0 +1,14 @@
+.git/
+.openai/
+.agents/
+.codex/
+node_modules/
+dist/
+outputs/
+replay-source/
+DESIGN-BRIEF.md
+DESIGN-DIRECTION.md
+RESUME-HERE.md
+DEPLOYMENT.md
+serve.mjs
+tests/

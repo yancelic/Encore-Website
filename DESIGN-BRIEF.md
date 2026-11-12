@@ -8,7 +8,8 @@
 - Avoid generic AI-generated design. Make deliberate choices grounded in Encore's actual capture and editing workflow. Avoid decorative gradient washes, repetitive card grids, filler copy, and scattered entrance animations.
 - Use the exact supplied palette in `palette.css`. The user also supplied directional and radial gradients using these five colors; their availability does not require using them.
 - Use Motion (motion.dev) for purposeful animation; respect reduced-motion preferences.
-- Current phase: website implemented and privately published with Sites. Preserve the established visual design.
+- Current phase: website implemented and deployed to https://encore-clips.vercel.app. Preserve the established visual design.
+- Current hosting target is Vercel, project encore-clips in scope echokatanas-projects. Use Vercel CLI for subsequent deployments; see DEPLOYMENT.md. The earlier private Sites deployment remains separate.
 - Use the same Encore E/replay mark from assets/encore-mark.svg everywhere, including the download section and footer. Do not replace it with a plain circular replay arrow.
 - Support English and Turkish throughout, with a persistent EN/TR switch.
 - The replay preview must contain actual animated footage, rendered with raea from replay-source/replay.tsx, with playback and scrubbing connected to the video. Respect reduced-motion preferences.

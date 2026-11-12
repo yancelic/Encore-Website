@@ -2,10 +2,12 @@ import http from 'node:http';
 import { stat } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { resolve, extname, sep } from 'node:path';
+import download from './api/download.js';
 const root = resolve('dist');
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.ttf':'font/ttf', '.png': 'image/png', '.jpg':'image/jpeg', '.mp4':'video/mp4' };
 const server = http.createServer(async (req, res) => {
   const name = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  if (name === '/api/download') return download(req, res);
   const file = resolve(root, `.${name === '/' ? '/index.html' : name}`);
   if (!file.startsWith(root + sep)) { res.writeHead(403); return res.end(); }
   try {

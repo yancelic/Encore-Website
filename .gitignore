@@ -7,3 +7,5 @@ replay-source/stills/
 replay-source/*.log
 replay-source/review.png
 outputs/
+.vercel/
+.env*.local
