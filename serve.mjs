@@ -8,7 +8,7 @@ const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 
 const server = http.createServer(async (req, res) => {
   const name = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
   if (name === '/api/download') return download(req, res);
-  const file = resolve(root, `.${name === '/' ? '/index.html' : name}`);
+  const file = resolve(root, `.${name === '/' ? '/index.html' : ['/macOS','/macOS/'].includes(name) ? '/macOS.html' : name}`);
   if (!file.startsWith(root + sep)) { res.writeHead(403); return res.end(); }
   try {
     const info = await stat(file);

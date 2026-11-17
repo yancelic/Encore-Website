@@ -1,6 +1,10 @@
-import { cp, mkdir, copyFile } from 'node:fs/promises';
+import { cp, mkdir, copyFile, readFile, writeFile } from 'node:fs/promises';
+import { renderGuide, pageI18n } from './content/macos-guide.mjs';
 await mkdir('dist/assets', { recursive: true });
 for (const name of ['index.html', 'style.css', 'enhancements.css', 'fonts.css', 'i18n.js', 'app.js', 'race.svg']) await copyFile(name, `dist/${name}`);
+for (const name of ['macos.css','macos.js']) await copyFile(name,`dist/${name}`);
+await writeFile('dist/macOS.html',(await readFile('macos.html','utf8')).replace('<!-- MACOS_GUIDE -->',renderGuide()));
+await writeFile('dist/macos-copy.js',`window.encorePageI18n = ${JSON.stringify(pageI18n)};`);
 await cp('assets', 'dist/assets', { recursive: true });
 await copyFile('palette.css', 'dist/palette.css');
 await copyFile('node_modules/motion/dist/motion.js', 'dist/assets/motion.js');

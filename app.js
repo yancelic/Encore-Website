@@ -1,6 +1,19 @@
 const $ = selector => document.querySelector(selector);
 const t = text => window.encoreI18n.t(text);
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+function revealInstallNotes() {
+  if (location.hash === '#macos-install') $('#macos-install').open = true;
+}
+window.addEventListener('hashchange', revealInstallNotes);
+document.querySelector('a[href="#macos-install"]')?.addEventListener('click', () => { $('#macos-install').open = true; });
+revealInstallNotes();
+document.querySelector('[data-macos-download]').addEventListener('click', event => {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const guideURL = new URL('/macOS',location.origin);
+  guideURL.searchParams.set('lang',window.encoreI18n.language);
+  guideURL.searchParams.set('download','1');
+  window.open(guideURL.href,'_blank','noopener,noreferrer');
+});
 const motionAnimate = (element, keyframes, options = {}) => {
   if (window.Motion?.animate) return window.Motion.animate(element, keyframes, { ...options, duration: reduceMotion.matches ? 0 : options.duration ?? .25 });
   for (const [property, values] of Object.entries(keyframes)) element.style[property] = Array.isArray(values) ? values.at(-1) : values;

@@ -5,13 +5,15 @@
     ['Main navigation', 'Ana menü'],
     ['The workflow', 'Nasıl çalışır'],
     ['Source code', 'Kaynak kodu'],
+    ['Back to Encore', 'Encore’a dön'],
+    ['macOS setup', 'macOS kurulumu'],
     ['Get Encore', 'Encore’u indir'],
-    ['A replay studio for Windows', 'Windows için oyun kaydı ve klip stüdyosu'],
+    ['A replay studio for Windows & macOS', 'Windows ve macOS için klip stüdyosu'],
     ['That was', 'Bu anı'], ['a keeper.', 'sakla.'],
     ['The clutch. The chaos. The “did you see that?”', 'O kritik hamle. O kaos. O “gördün mü?” anı.'],
     ['Keep your last moments of gameplay, then make', 'Oyunun son anlarını kaydet, sonra'],
     ['the cut worth watching.', 'tekrar izlemeye değer bir klibe dönüştür.'],
-    ['Download for Windows', 'Windows için indir'],
+    ['Download Encore', 'Encore’u indir'],
     ['Free & open source. Yours to keep.', 'Ücretsiz, açık kaynak. Kontrol sende.'],
     ['Replay buffer ready', 'Anlık kayıt hazır'],
     ['Illustrated demo', 'Animasyonlu demo'],
@@ -59,8 +61,28 @@
     ['Next time,', 'Bir dahakine,'], ['keep it.', 'sakla.'],
     ['Your next great play deserves an Encore.', 'Sıradaki harika hamlen bir Encore’u hak ediyor.'],
     ['Game capture, a clip library, and multi-track editing.', 'Oyun kaydı, klip kütüphanesi ve çok kanallı düzenleme.'],
-    ['All on your Windows PC.', 'Hepsi Windows bilgisayarında.'],
-    ['Get Encore for Windows', 'Windows için Encore’u indir'],
+    ['Choose your platform. Keep your next great play.', 'Platformunu seç. Sıradaki harika hamleni sakla.'],
+    ['Stable downloads', 'Stabil sürümler'],
+    ['Stable', 'Stabil'], ['Beta', 'Beta'],
+    ['Download Encore for Windows', 'Windows için Encore’u indir'],
+    ['Download Encore for macOS', 'macOS için Encore’u indir'],
+    ['Download Encore for Ubuntu (beta)', 'Ubuntu için Encore’u indir (beta)'],
+    ['Download Encore for Linux Flatpak (beta)', 'Linux Flatpak için Encore’u indir (beta)'],
+    ['First time on macOS?', 'macOS’ta ilk kurulum mu?'],
+    ['Read the installation notes', 'Kurulum notlarını oku'],
+    ['. Manual updates; Apple notarization is not yet available.', '. Güncellemeler elle kurulur; henüz Apple noter onayı yoktur.'],
+    ['For the Linux early birds.', 'Linux’u erkenden denemek isteyenlere.'],
+    ['Beta previews. Automated checks passed; not yet tested on real user devices.', 'Beta önizlemeleri. Otomatik kontrollerden geçti; henüz gerçek kullanıcı cihazlarında test edilmedi.'],
+    ['Linux installation & testing guide', 'Linux kurulum ve test rehberi'],
+    ['Installation notes', 'Kurulum notları'],
+    ['Installing Encore on macOS', 'macOS’ta Encore kurulumu'],
+    ['Open the DMG and drag Encore into Applications. Quit Encore and its background recorder before replacing an older installation. Updates are installed manually.', 'DMG dosyasını aç ve Encore’u Applications klasörüne sürükle. Eski kurulumu değiştirmeden önce Encore’u ve arka plandaki kayıt servisini kapat. Güncellemeler elle kurulur.'],
+    ['The app is ad-hoc signed and is not Apple Developer ID signed or notarized. After the first launch attempt, you may need System Settings → Privacy & Security → Open Anyway.', 'Uygulama ad-hoc imzalıdır; Apple Developer ID imzası veya Apple noter onayı yoktur. İlk açma denemesinden sonra Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç seçeneğini kullanman gerekebilir.'],
+    ['In Encore, open Settings → Permissions. Switch on Encore for screen recording and microphone, and Encore Recorder for Input Monitoring. Follow the illustrated guide for each step.', 'Encore’da Settings → Permissions bölümünü aç. Ekran kaydı ve mikrofon için Encore’u, Girdi İzleme için Encore Recorder’ı etkinleştir. Her adım için görselli rehberi izle.'],
+    ['What should I expect from the Linux beta?', 'Linux betadan ne beklemeliyim?'],
+    ['Ubuntu and Flatpak are development previews with manual updates. Desktop integration, Wayland permissions, GPU drivers, audio routing, and playback may still need fixes. The Flatpak download is a standalone bundle, not a Flathub listing.', 'Ubuntu ve Flatpak, güncellemeleri elle kurulan geliştirme önizlemeleridir. Masaüstü entegrasyonu, Wayland izinleri, GPU sürücüleri, ses yönlendirme ve oynatmada sorunlar olabilir. Flatpak indirmesi bağımsız bir pakettir; Flathub’da yayımlanmış değildir.'],
+    ['Follow the Linux beta test guide', 'Linux beta test rehberi'],
+    ['for installation steps, checks, and log locations.', 'ile kurulum adımlarını, kontrolleri ve günlük dosyalarının konumlarını öğrenebilirsin.'],
     ['Free and open source under GPL-3.0.', 'GPL-3.0 lisansıyla ücretsiz ve açık kaynak.'],
     ['Questions about Encore', 'Encore hakkında sorular'],
     ['A few things to know.', 'Bilmen gereken birkaç şey.'],
@@ -78,7 +100,7 @@
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const node = walker.currentNode, original = node.data.trim();
-    if (translations.has(original)) records.push({node,original,prefix:node.data.match(/^\s*/)[0],suffix:node.data.match(/\s*$/)[0]});
+    if (!node.parentElement?.closest('[data-guide-copy]') && translations.has(original)) records.push({node,original,prefix:node.data.match(/^\s*/)[0],suffix:node.data.match(/\s*$/)[0]});
   }
   const attributes = [];
   document.querySelectorAll('[aria-label],[alt]').forEach(element => {
@@ -97,8 +119,17 @@
     document.documentElement.lang = language;
     for (const item of records) item.node.data = item.prefix + t(item.original) + item.suffix;
     for (const item of attributes) item.element.setAttribute(item.name,t(item.original));
-    document.title = language === 'tr' ? 'Encore — Bu anı sakla.' : 'Encore — That was a keeper.';
-    document.querySelector('meta[name=description]').content = language === 'tr' ? 'Oyunun son anlarını kaydet, gerisini kes. Encore, Windows için açık kaynaklı oyun kayıt ve çok kanallı klip düzenleme stüdyosudur.' : 'Keep the play. Cut the downtime. Encore is an open-source Windows game recorder and multi-track replay studio.';
+    const page = window.encorePageI18n;
+    document.querySelectorAll('[data-guide-copy]').forEach(element => { element.innerHTML = page.copy[language][element.dataset.guideCopy]; });
+    document.querySelectorAll('[data-guide-alt]').forEach(element => { element.alt = page.copy[language][element.dataset.guideAlt]; });
+    document.querySelectorAll('[data-guide-label]').forEach(element => { element.setAttribute('aria-label',page.copy[language][element.dataset.guideLabel]); });
+    document.querySelectorAll('[data-macos-guide]').forEach(link => {
+      const url = new URL('/macOS',location.origin);
+      url.searchParams.set('lang',language);
+      link.href=url.pathname+url.search;
+    });
+    document.title = page?.title[language] ?? (language === 'tr' ? 'Encore — Bu anı sakla.' : 'Encore — That was a keeper.');
+    document.querySelector('meta[name=description]').content = page?.description[language] ?? (language === 'tr' ? 'Oyunun son anlarını kaydet, gerisini kes. Encore, açık kaynaklı oyun kayıt ve çok kanallı klip düzenleme stüdyosudur. Windows ve macOS stabil, Ubuntu ve Flatpak beta.' : 'Keep the play. Cut the downtime. Encore is an open-source game recorder and multi-track replay studio. Stable for Windows and macOS. Ubuntu and Flatpak in beta.');
     document.querySelectorAll('[data-language]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.language===language)));
     if (persist) {
       try { localStorage.setItem('encore-language',language); } catch {}

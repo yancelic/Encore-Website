@@ -1,0 +1,64 @@
+.macos-guide-page [hidden]{display:none!important}
+.guide-hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(230px,.7fr);gap:80px;align-items:end;padding-block:58px 68px;border-bottom:1px solid var(--onyx)}
+.guide-requirements{font-size:11px;color:var(--blue-slate);margin-bottom:24px}
+.guide-hero h1{font-size:clamp(70px,8vw,118px);line-height:.94;margin:0 0 28px}
+.guide-intro{font-size:14px;max-width:50ch;margin-bottom:0;color:var(--blue-slate)}
+.guide-action{padding-bottom:5px}
+.guide-action>p{font-size:11px;color:var(--blue-slate);max-width:36ch;margin:14px 0 0}
+.guide-action #download-status{border-left:2px solid var(--brick-ember);padding-left:12px;color:var(--onyx)}
+.guide-layout{display:grid;grid-template-columns:235px minmax(0,850px);gap:70px;align-items:start;padding-block:55px 80px}
+.guide-sidebar{position:sticky;top:28px}
+.guide-toc{border:0}
+.guide-toc>summary{font-size:12px;padding:0 0 20px;pointer-events:none}
+.guide-toc>summary:after{display:none}
+.guide-step-nav{display:flex;flex-direction:column;gap:0;margin:0;font-size:11px;font-weight:500}
+.guide-step-nav a{display:flex;align-items:baseline;gap:12px;border-left:2px solid transparent;padding:11px 0 11px 14px;color:var(--blue-slate);line-height:1.5}
+.guide-step-nav a>span:first-child:not(:only-child){font-size:10px;min-width:9px;font-variant-numeric:tabular-nums}
+.guide-step-nav a:hover,.guide-step-nav a[aria-current=step]{border-left-color:var(--brick-ember);color:var(--onyx)}
+.guide-body{min-width:0;font-size:14px}
+.guide-body p,.guide-body li{line-height:1.9;max-width:77ch}
+.guide-body h2{font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-size:43px;font-weight:600;line-height:1.1;letter-spacing:-.6px;margin-bottom:24px}
+.guide-body h3{font-size:19px;font-weight:700;line-height:1.4;margin-bottom:0}
+.guide-before,.guide-step,.guide-substep,.guide-faq,.guide-faq details{scroll-margin-top:28px}
+.guide-body .guide-note{background:var(--pale-sky);padding:19px 23px;max-width:none;font-size:12px;margin:22px 0;line-height:1.9}
+.guide-body .guide-warning{background:transparent;border-left:2px solid var(--brick-ember);padding:4px 0 4px 20px}
+.guide-apple-link{display:inline-block;font-size:11px;margin-bottom:24px;text-decoration:underline;text-underline-offset:4px}
+.guide-permission-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.7;text-align:left;margin-block:22px 26px}
+.guide-permission-table th,.guide-permission-table td{vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid color-mix(in srgb,var(--blue-slate) 30%,transparent)}
+.guide-permission-table thead th{font-weight:500;color:var(--blue-slate);border-bottom-color:var(--onyx)}
+.guide-permission-table tbody th{font-weight:600;width:31%}
+.guide-permission-table td:last-child{width:24%;padding-right:0}
+.guide-body .guide-image-disclosure{font-size:11px;color:var(--blue-slate);margin-bottom:0}
+.guide-step,.guide-faq{border-top:1px solid color-mix(in srgb,var(--blue-slate) 30%,transparent);margin-top:50px;padding-top:40px}
+.step-heading{display:flex;align-items:baseline;gap:24px;margin-bottom:24px}
+.step-heading h2{margin:0}
+.step-number{font-family:'Barlow Condensed','Arial Narrow',sans-serif;color:var(--brick-ember);font-size:43px;font-weight:600;min-width:24px}
+.guide-step ol{padding-left:23px;margin-bottom:25px}
+.guide-step li{padding-left:5px;margin-bottom:9px}
+.guide-figure{margin:27px 0}
+.guide-image-button{padding:0;border:0;background:transparent;display:block;width:100%;cursor:zoom-in}
+.guide-figure img{width:100%;height:auto;display:block;border-radius:3px}
+.guide-figure figcaption{font-size:10px;color:var(--blue-slate);line-height:1.6;margin-top:10px}
+.guide-substep{margin-top:40px}
+.substep-heading{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+.substep-heading>span{font-size:12px;color:var(--brick-ember);font-weight:700}
+.guide-faq>p{color:var(--blue-slate);font-size:12px}
+.guide-faq summary{font-size:13px;line-height:1.6;padding-block:20px}
+.guide-faq details p{font-size:12px;padding-right:0;line-height:1.9}
+.guide-answer{padding-bottom:20px}
+.guide-answer a{ text-decoration:underline;text-underline-offset:3px}
+.guide-answer .answer-permalink{font-size:10px;color:var(--blue-slate)}
+.guide-code{background:var(--onyx);color:var(--ghost-white);padding:18px;display:flex;gap:16px;align-items:center;justify-content:space-between;margin-block:20px}
+.guide-code code{font-size:11px;overflow-wrap:anywhere;min-width:0;line-height:1.8;user-select:all}
+.guide-code button{font-size:10px;color:var(--ghost-white);background:transparent;border:1px solid var(--blue-slate);min-height:40px;padding:7px 10px;flex-shrink:0}
+.guide-answer .copy-status{font-size:11px;margin:0 0 16px}
+.guide-support{display:inline-block;margin-top:28px;text-decoration:underline;text-underline-offset:5px;font-size:12px}
+#guide-lightbox{width:min(1440px,96vw);max-width:96vw;max-height:94vh;border:0;padding:18px;background:var(--onyx);color:var(--ghost-white)}
+#guide-lightbox::backdrop{background:color-mix(in srgb,var(--onyx) 88%,transparent)}
+.lightbox-toolbar{display:flex;gap:24px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.lightbox-toolbar p{font-size:11px;margin:0;line-height:1.6}
+.lightbox-toolbar button{font-size:11px;border:1px solid var(--blue-slate);color:var(--ghost-white);background:transparent;min-height:44px;padding:9px 13px;flex-shrink:0}
+#lightbox-image{display:block;max-width:100%;width:auto;height:auto;max-height:calc(94vh - 100px);object-fit:contain;margin-inline:auto}
+@media(max-width:1050px){.guide-hero{gap:40px}.guide-layout{grid-template-columns:180px minmax(0,1fr);gap:35px}.guide-step-nav a{padding-left:10px}}
+@media(max-width:760px){.guide-hero{grid-template-columns:minmax(0,1fr);gap:28px;padding-block:30px 38px}.guide-hero h1{font-size:clamp(54px,14vw,86px);margin-bottom:22px}.guide-requirements{font-size:10px;max-width:32ch;line-height:1.8;margin-bottom:20px}.guide-intro{font-size:12px}.guide-layout{display:block;padding-top:25px}.guide-sidebar{position:static;margin-bottom:30px}.guide-toc{border-block:1px solid color-mix(in srgb,var(--blue-slate) 30%,transparent)}.guide-toc>summary{pointer-events:auto;padding:15px 0}.guide-toc>summary:after{display:block}.guide-step-nav{display:flex;padding-bottom:15px}.guide-step-nav a{padding-block:9px}.guide-body{font-size:12px}.guide-body h2{font-size:35px}.guide-body h3{font-size:17px}.step-number{font-size:35px;min-width:17px}.step-heading{gap:16px}.guide-body .guide-note{padding:16px;font-size:11px}.guide-body .guide-warning{padding:3px 0 3px 16px}.guide-permission-table{font-size:10px;table-layout:fixed}.guide-permission-table th,.guide-permission-table td{padding-right:8px;overflow-wrap:anywhere}.guide-permission-table tbody th{width:32%}.guide-permission-table td:last-child{width:26%}.guide-step,.guide-faq{margin-top:36px;padding-top:30px}.guide-faq summary{font-size:12px}.guide-code{align-items:start;flex-direction:column;gap:12px}.guide-figure{margin-block:22px}.lightbox-toolbar{gap:12px}.lightbox-toolbar p{font-size:10px}.lightbox-toolbar button{font-size:10px;padding-inline:8px}#guide-lightbox{padding:12px}}
+@media(prefers-reduced-motion:reduce){.macos-guide-page{scroll-behavior:auto}.macos-guide-page *{scroll-behavior:auto!important}}
