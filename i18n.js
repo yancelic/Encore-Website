@@ -69,6 +69,7 @@
     ['Download Encore for Ubuntu (beta)', 'Ubuntu için Encore’u indir (beta)'],
     ['Download Encore for Linux Flatpak (beta)', 'Linux Flatpak için Encore’u indir (beta)'],
     ['First time on macOS?', 'macOS’ta ilk kurulum mu?'],
+    ['Thanks for your contributions to Encore on macOS,', 'Encore’un macOS sürümüne katkıların için teşekkürler,'],
     ['Read the installation notes', 'Kurulum notlarını oku'],
     ['. Manual updates; Apple notarization is not yet available.', '. Güncellemeler elle kurulur; henüz Apple noter onayı yoktur.'],
     ['For the Linux early birds.', 'Linux’u erkenden denemek isteyenlere.'],

@@ -12,6 +12,8 @@
 .release-badge{font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--onyx);background:var(--pale-sky);padding:4px 6px}
 .platform-requirements{font-size:10px;color:var(--blue-slate);line-height:1.6}
 .download-content .install-note{font-size:10px;line-height:1.8;margin:14px 0 28px}
+.download-content .macos-credit{font-size:11px;line-height:1.8;margin:14px 0 0;color:var(--blue-slate)}
+.macos-credit a{color:var(--onyx);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .install-note a,.beta-guide a{text-decoration:underline;text-underline-offset:3px}
 .beta-downloads h4{font-size:13px;font-weight:600;margin:0 0 8px}
 .beta-downloads>p{font-size:10px;color:var(--blue-slate);line-height:1.8;margin-bottom:8px}
